@@ -2,8 +2,8 @@
 #SBATCH --job-name=gw-injections
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=10:00:00
-#SBATCH --mem=10G
+#SBATCH --time=12:00:00
+#SBATCH --mem=16G
 #SBATCH --output=logs/%x-%j.out
 
 
@@ -23,6 +23,8 @@ which python
 PROJECT_DIR=/fred/oz016/bgao_kn/observing-scenarios-simulations
 export PATH="$HOME/.local/bin:$PATH"
 export UV_CACHE_DIR="$PROJECT_DIR/.uv-cache"
+export BAYESTAR_JOBS="${SLURM_CPUS_PER_TASK:-8}"
+export OMP_NUM_THREADS=1
 
 if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"

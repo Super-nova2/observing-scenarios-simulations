@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=8
 #SBATCH --time=10:00:00
-#SBATCH --mem=10G
+#SBATCH --mem=32G
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail

@@ -6,6 +6,17 @@ RUNS="${RUNS:-O5a O5b O5c}"
 
 cd "$PROJECT_DIR"
 
+for run in $RUNS; do
+  case "$run" in
+    O5*)
+      if [ -d "runs/$run/bgp" ]; then
+        echo "Clearing runs/$run/bgp"
+        find "runs/$run/bgp" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+      fi
+      ;;
+  esac
+done
+
 inj_job=$(sbatch --parsable --export=ALL,RUNS="$RUNS" slurm/make_injections.sh)
 loc_job=$(sbatch --parsable --dependency=afterok:"$inj_job" --export=ALL,RUNS="$RUNS" slurm/run_bayestar.sh)
 sta_job=$(sbatch --parsable --dependency=afterok:"$loc_job" --export=ALL,RUNS="$RUNS" slurm/tabulate_stats.sh)
