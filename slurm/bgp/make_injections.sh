@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=gw-injections
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=8
-#SBATCH --time=12:00:00
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=16
+#SBATCH --time=24:00:00
+#SBATCH --mem=32G
 #SBATCH --output=logs/%x-%j.out
 
 
@@ -31,7 +31,8 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 # Override at submit time: sbatch --export=ALL,RUNS="O5a O5b O5c"
-RUNS="${RUNS:-O5a O5b O5c}"
+#RUNS="${RUNS:-O5a O5b O5c}"
+RUNS="${RUNS:-O5a}"
 
 cd "$PROJECT_DIR"
 mkdir -p logs

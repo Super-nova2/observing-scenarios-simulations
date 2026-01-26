@@ -1,7 +1,8 @@
 RUNS = O4HL O4HLV O5a O5b O5c
 POPS = bgp
 FILENAMES = events events.xml.gz events.sqlite injections.dat coincs.dat
-BAYESTAR_JOBS ?= 1
+BAYESTAR_JOBS ?= 16
+INJECTION_TOTAL ?= 1000000
 
 all: psds injections public-alerts.dat
 
@@ -112,17 +113,17 @@ bgp.h5: scripts/bgp.py AllCBC_FullPopBGP.h5
 runs/%/fullpop4/injections.xml: $$(dir $$(@D))psds.xml fullpop4.h5
 	mkdir -p $(@D) && cd $(@D) && bayestar-inject -l error --seed 1 -o $(@F) -j $(BAYESTAR_JOBS) \
 	--snr-threshold 1 --distribution-samples ../../../fullpop4.h5 --reference-psd ../psds.xml \
-	--min-triggers 1 --nsamples 1000000
+	--min-triggers 1 --nsamples $(INJECTION_TOTAL)
 
 runs/%/bgp/injections.xml: $$(dir $$(@D))psds.xml bgp.h5
 	mkdir -p $(@D) && cd $(@D) && bayestar-inject -l error --seed 1 -o $(@F) -j $(BAYESTAR_JOBS) \
 	--snr-threshold 1 --distribution-samples ../../../bgp.h5 --reference-psd ../psds.xml \
-	--min-triggers 1 --nsamples 1000000
+	--min-triggers 1 --nsamples $(INJECTION_TOTAL)
 
 runs/%/injections.xml: $$(dir $$(@D))psds.xml
 	mkdir -p $(@D) && cd $(@D) && bayestar-inject -l error --seed 1 -o $(@F) -j $(BAYESTAR_JOBS) \
 	--snr-threshold 1 --distribution $(notdir $(@D)) --reference-psd ../psds.xml \
-	--min-triggers 1 --nsamples 1000000
+	--min-triggers 1 --nsamples $(INJECTION_TOTAL)
 
 
 #

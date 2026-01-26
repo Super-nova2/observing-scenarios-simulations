@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --job-name=gw-stats
+#SBATCH --job-name=gw-bayestar
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=8
-#SBATCH --time=10:00:00
-#SBATCH --mem=32G
+#SBATCH --cpus-per-task=16
+#SBATCH --time=24:00:00
+#SBATCH --mem=8G
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail
@@ -27,7 +27,8 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 # Override at submit time: sbatch --export=ALL,RUNS="O5a O5b O5c"
-RUNS="${RUNS:-O5a O5b O5c}"
+#RUNS="${RUNS:-O5a O5b O5c}"
+RUNS="${RUNS:-O5a}"
 
 cd "$PROJECT_DIR"
 mkdir -p logs
@@ -36,22 +37,17 @@ export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"
 
 found=0
 for run in $RUNS; do
-  for eventsfile in runs/$run/*/events.sqlite; do
+  for eventsfile in runs/$run/*/events.xml.gz; do
     if [ ! -e "$eventsfile" ]; then
       continue
     fi
     found=1
-    mapdir="$(dirname "$eventsfile")/allsky"
-    if [ ! -d "$mapdir" ]; then
-      echo "Missing $mapdir. Run BAYESTAR localization first."
-      exit 2
-    fi
-    uv run ligo-skymap-stats -d "$eventsfile" -o "$(dirname "$eventsfile")/allsky.dat" \
-      $(find "$mapdir" -name '*.fits' | sort -V) --cosmology --contour 20 50 90 -j
+    outdir="$(dirname "$eventsfile")/allsky"
+    uv run bayestar-localize-coincs "$eventsfile" -o "$outdir" --f-low 11 --cosmology
   done
 done
 
 if [ "$found" -eq 0 ]; then
-  echo "No events.sqlite files found for RUNS=\"$RUNS\". Run injections first."
+  echo "No events.xml.gz files found for RUNS=\"$RUNS\". Run injections first."
   exit 2
 fi
