@@ -15,6 +15,7 @@ runs
 *.h5
 *.zip
 *.pdf
+*.tar.gz
 
 # Logs
 logs/

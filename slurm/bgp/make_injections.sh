@@ -4,6 +4,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --time=24:00:00
 #SBATCH --mem=32G
+#SBATCH --gres=tmp:1G
 #SBATCH --output=logs/%x-%j.out
 
 
@@ -22,7 +23,9 @@ which python
 
 PROJECT_DIR=/fred/oz016/bgao_kn/observing-scenarios-simulations
 export PATH="$HOME/.local/bin:$PATH"
-export UV_CACHE_DIR="$PROJECT_DIR/.uv-cache"
+JOB_TMP_DIR="${SLURM_TMPDIR:-${TMPDIR:-${JOBFS:-/tmp}}}"
+export UV_CACHE_DIR="${JOB_TMP_DIR}/uv-cache"
+mkdir -p "$UV_CACHE_DIR"
 export BAYESTAR_JOBS="${SLURM_CPUS_PER_TASK:-8}"
 export OMP_NUM_THREADS=1
 

@@ -4,6 +4,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=10:00:00
 #SBATCH --mem=64G
+#SBATCH --gres=tmp:1G
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail
@@ -20,7 +21,9 @@ module load python/3.11.5
 
 PROJECT_DIR=/fred/oz016/bgao_kn/observing-scenarios-simulations
 export PATH="$HOME/.local/bin:$PATH"
-export UV_CACHE_DIR="$PROJECT_DIR/.uv-cache"
+JOB_TMP_DIR="${SLURM_TMPDIR:-${TMPDIR:-${JOBFS:-/tmp}}}"
+export UV_CACHE_DIR="${JOB_TMP_DIR}/uv-cache"
+mkdir -p "$UV_CACHE_DIR"
 
 if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
