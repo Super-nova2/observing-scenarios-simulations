@@ -6,8 +6,8 @@ This creates a uniform distribution over the full NSBH parameter space,
 optimized for training deep learning models rather than astrophysical accuracy.
 
 NSBH systems have asymmetric parameters:
-  - mass1 (BH): [2.5, 20.0] Msun with spin up to 0.99
-  - mass2 (NS): [1.0, 2.5] Msun with spin up to 0.5
+  - mass1 (BH): [2.0, 20.0] Msun with spin up to 0.99
+  - mass2 (NS): [1.0, 2.0] Msun with spin up to 0.5
 """
 
 import argparse
@@ -33,8 +33,8 @@ def main():
     parser.add_argument(
         "--bh-mass-min",
         type=float,
-        default=2.5,
-        help="Minimum BH mass in Msun (default: 2.5)"
+        default=2.0,
+        help="Minimum BH mass in Msun (default: 2.0)"
     )
     parser.add_argument(
         "--bh-mass-max",
@@ -51,8 +51,8 @@ def main():
     parser.add_argument(
         "--ns-mass-max",
         type=float,
-        default=2.5,
-        help="Maximum NS mass in Msun (default: 2.5)"
+        default=2.0,
+        help="Maximum NS mass in Msun (default: 2.0)"
     )
     parser.add_argument(
         "--bh-spin-max",

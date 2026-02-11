@@ -84,10 +84,10 @@ if [ ! -f "$DIST_FILE" ]; then
   uv run python scripts/generate_nsbh_training_distribution.py \
     -o "$DIST_FILE" \
     -n "$NSAMPLES" \
-    --bh-mass-min 2.5 \
+    --bh-mass-min 2.0 \
     --bh-mass-max 20.0 \
     --ns-mass-min 1.0 \
-    --ns-mass-max 2.5 \
+    --ns-mass-max 2.0 \
     --bh-spin-max 0.99 \
     --ns-spin-max 0.5 \
     --seed "$SEED" \
