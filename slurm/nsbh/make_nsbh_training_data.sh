@@ -59,9 +59,9 @@ fi
 # Configuration with defaults
 SEED="${SEED:-42}"
 RUNS="${RUNS:-O5a}"
-NSAMPLES="${NSAMPLES:-500000}"
+NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-1000}"
-NET_SNR_THR="${NET_SNR_THR:-5}"
+NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-nsbh_training.h5}"
 
 cd "$PROJECT_DIR"
