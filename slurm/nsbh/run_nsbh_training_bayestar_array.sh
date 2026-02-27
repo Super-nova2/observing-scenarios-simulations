@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=12:00:00
-#SBATCH --mem=12G
+#SBATCH --mem=4G
 #SBATCH --tmp=1G
 #SBATCH --output=logs/arrays/%x-%A_%a.out
 
