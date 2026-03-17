@@ -82,7 +82,7 @@ the `make` command must be done in two steps.
 
             $ qsub -q long make.pbs
 
-## Slurm pipeline (example)
+## Slurm pipeline (BGP example)
 
 If your cluster uses Slurm and compute nodes cannot access the Internet,
 download inputs on a login node first:
@@ -92,17 +92,23 @@ download inputs on a login node first:
 If you do not have access to the non-public O4 PSDs (`o4b_*`), limit `RUNS` to
 O5 as shown above.
 
-Then submit the pipeline (or submit each script with `sbatch` and your
+Then submit the BGP pipeline (or submit each script with `sbatch` and your
 partition/account flags as needed):
 
-    $ bash slurm/submit_pipeline.sh
-    # or: RUNS="O5a O5b O5c" bash slurm/submit_pipeline.sh
+    $ bash slurm/bgp/submit_pipeline.sh
+    # or: RUNS="O5a O5b O5c" bash slurm/bgp/submit_pipeline.sh
 
-The submit script queues three jobs in order: injections -> BAYESTAR -> stats.
+The submit script queues two jobs in order: injections -> BAYESTAR.
+Submit `slurm/bgp/tabulate_stats.sh` separately if you also want localization
+statistics.
+
+For the BNS-only workflow added in this branch, use:
+
+    $ bash slurm/bns/submit_bns_pipeline.sh
 
 ### What each Slurm job runs
 
-**`slurm/make_injections.sh`** runs:
+**`slurm/bgp/make_injections.sh`** runs:
 
     $ uv run make RUNS="$RUNS" injections
 
@@ -116,12 +122,12 @@ This `make` target expands to these commands per run/pop:
 *   `igwn_ligolw_sqlite ...` -> `runs/<RUN>/<POP>/events.sqlite`
 *   `igwn_ligolw_print ...` -> `injections.dat` and `coincs.dat`
 
-**`slurm/run_bayestar.sh`** runs:
+**`slurm/bgp/run_bayestar.sh`** runs:
 
     $ bayestar-localize-coincs runs/<RUN>/<POP>/events.xml.gz \
         -o runs/<RUN>/<POP>/allsky --f-low 11 --cosmology
 
-**`slurm/tabulate_stats.sh`** runs:
+**`slurm/bgp/tabulate_stats.sh`** runs:
 
     $ ligo-skymap-stats -d runs/<RUN>/<POP>/events.sqlite \
         -o runs/<RUN>/<POP>/allsky.dat \

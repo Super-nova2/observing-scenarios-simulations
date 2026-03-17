@@ -63,7 +63,7 @@ for run in $RUNS; do
 done
 
 if [ "$found" -eq 0 ]; then
-  echo "No BNS events.xml.gz files found for RUNS=\"$RUNS\". Run make_bns_injections.sh first."
+  echo "No BNS events.xml.gz files found for RUNS=\"$RUNS\". Run slurm/bns/make_bns_injections.sh first."
   exit 2
 fi
 

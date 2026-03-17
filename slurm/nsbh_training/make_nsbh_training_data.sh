@@ -19,8 +19,8 @@
 #   mass2 (NS): [1.0, 2.5] Msun,  spin [-0.5, 0.5]
 #
 # Usage:
-#   sbatch slurm/nsbh/make_nsbh_training_data.sh
-#   sbatch --export=ALL,SEED=42,MAX_DIST=800 slurm/nsbh/make_nsbh_training_data.sh
+#   sbatch slurm/nsbh_training/make_nsbh_training_data.sh
+#   sbatch --export=ALL,SEED=42,MAX_DIST=800 slurm/nsbh_training/make_nsbh_training_data.sh
 #
 # Configuration via environment variables:
 #   SEED         - Random seed (default: 42)
@@ -188,4 +188,4 @@ done
 
 echo ""
 echo "All done! Next step: Run BAYESTAR skymap generation."
-echo "Use: sbatch --export=ALL,SEED=$SEED slurm/nsbh/run_nsbh_training_bayestar.sh"
+echo "Use: sbatch --export=ALL,SEED=$SEED slurm/nsbh_training/run_nsbh_training_bayestar.sh"

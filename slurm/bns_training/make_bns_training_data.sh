@@ -15,8 +15,8 @@
 # to maximize parameter space coverage.
 #
 # Usage:
-#   sbatch slurm/make_bns_training_data.sh
-#   sbatch --export=ALL,SEED=42,MAX_DIST=300 slurm/make_bns_training_data.sh
+#   sbatch slurm/bns_training/make_bns_training_data.sh
+#   sbatch --export=ALL,SEED=42,MAX_DIST=300 slurm/bns_training/make_bns_training_data.sh
 #
 # Configuration via environment variables:
 #   SEED         - Random seed (default: 42)
@@ -181,4 +181,4 @@ done
 
 echo ""
 echo "All done! Next step: Run BAYESTAR skymap generation."
-echo "Use: sbatch --export=ALL,SEED=$SEED slurm/run_bns_training_bayestar.sh"
+echo "Use: sbatch --export=ALL,SEED=$SEED slurm/bns_training/run_bns_training_bayestar.sh"

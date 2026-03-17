@@ -68,7 +68,7 @@ done
 
 if [ "$found" -eq 0 ]; then
   echo "No training events.xml.gz files found for RUNS=\"$RUNS\" and SEED=\"$SEED\"."
-  echo "Run slurm/make_bns_training_data.sh first."
+  echo "Run slurm/bns_training/make_bns_training_data.sh first."
   exit 2
 fi
 

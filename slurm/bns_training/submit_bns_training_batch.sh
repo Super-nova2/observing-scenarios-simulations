@@ -6,8 +6,8 @@
 # distribution file is not traversed repeatedly by bayestar-inject.
 #
 # Usage:
-#   ./slurm/submit_bns_training_batch.sh
-#   ./slurm/submit_bns_training_batch.sh 100000 500 8 42 "O5a" 200
+#   ./slurm/bns_training/submit_bns_training_batch.sh
+#   ./slurm/bns_training/submit_bns_training_batch.sh 100000 500 8 42 "O5a" 200
 #
 # Args (positional):
 #   NSAMPLES      - Number of injections (default: 100000)
@@ -47,8 +47,8 @@ if [ ! -f "bns_training.h5" ]; then
 fi
 
 export NSAMPLES MAX_DIST NET_SNR_THR SEED RUNS EVENTS_PER_TASK
-JOB_ID=$(sbatch --parsable --export=ALL slurm/make_bns_training_data.sh)
-PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/prepare_bns_training_bayestar_array.sh)
+JOB_ID=$(sbatch --parsable --export=ALL slurm/bns_training/make_bns_training_data.sh)
+PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/bns_training/prepare_bns_training_bayestar_array.sh)
 
 echo ""
 echo "=============================================="
@@ -58,5 +58,4 @@ echo "Localization prep job ID: $PREP_JOB_ID (afterok:$JOB_ID)"
 echo "The prep job will split events and submit an array localization."
 echo ""
 echo "Monitor with: squeue -u $USER"
-echo "If you split runs manually, combine with: python scripts/combine_bns_training_data.py"
 echo "=============================================="

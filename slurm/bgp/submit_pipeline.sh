@@ -17,11 +17,11 @@ for run in $RUNS; do
   esac
 done
 
-inj_job=$(sbatch --parsable --export=ALL,RUNS="$RUNS" slurm/make_injections.sh)
-loc_job=$(sbatch --parsable --dependency=afterok:"$inj_job" --export=ALL,RUNS="$RUNS" slurm/run_bayestar.sh)
-#sta_job=$(sbatch --parsable --dependency=afterok:"$loc_job" --export=ALL,RUNS="$RUNS" slurm/tabulate_stats.sh)
+inj_job=$(sbatch --parsable --export=ALL,RUNS="$RUNS" slurm/bgp/make_injections.sh)
+loc_job=$(sbatch --parsable --dependency=afterok:"$inj_job" --export=ALL,RUNS="$RUNS" slurm/bgp/run_bayestar.sh)
+#sta_job=$(sbatch --parsable --dependency=afterok:"$loc_job" --export=ALL,RUNS="$RUNS" slurm/bgp/tabulate_stats.sh)
 
 echo "Submitted jobs:"
 echo "  injections: $inj_job"
 echo "  bayestar:   $loc_job"
-#echo "  stats:      $sta_job"
+echo "  stats:      submit manually with slurm/bgp/tabulate_stats.sh if needed"

@@ -7,10 +7,10 @@
 #   4. Generate skymaps (bayestar-localize-coincs)
 #
 # Usage:
-#   ./slurm/submit_bns_pipeline.sh                    # Default: O5a, 50000 samples
-#   RUNS="O5a O5b" ./slurm/submit_bns_pipeline.sh     # Multiple runs
-#   BNS_NSAMPLES=100000 ./slurm/submit_bns_pipeline.sh  # More samples
-#   BNS_DISTRIBUTION=bns_broad ./slurm/submit_bns_pipeline.sh  # Broad distribution
+#   ./slurm/bns/submit_bns_pipeline.sh                       # Default: O5a, 50000 samples
+#   RUNS="O5a O5b" ./slurm/bns/submit_bns_pipeline.sh        # Multiple runs
+#   BNS_NSAMPLES=100000 ./slurm/bns/submit_bns_pipeline.sh   # More samples
+#   BNS_DISTRIBUTION=bns_broad ./slurm/bns/submit_bns_pipeline.sh  # Broad distribution
 #
 
 set -euo pipefail

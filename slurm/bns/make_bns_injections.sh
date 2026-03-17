@@ -33,7 +33,7 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 # Configuration - override at submit time if needed
-# sbatch --export=ALL,RUNS="O5a",BNS_NSAMPLES=100000 slurm/make_bns_injections.sh
+# sbatch --export=ALL,RUNS="O5a",BNS_NSAMPLES=100000 slurm/bns/make_bns_injections.sh
 RUNS="${RUNS:-O5a}"
 BNS_NSAMPLES="${BNS_NSAMPLES:-50000}"
 BNS_DISTRIBUTION="${BNS_DISTRIBUTION:-bns_astro}"  # or bns_broad
@@ -135,4 +135,4 @@ done
 
 echo ""
 echo "All BNS injections complete!"
-echo "Next step: Run skymap generation with run_bns_bayestar.sh"
+echo "Next step: Run skymap generation with slurm/bns/run_bns_bayestar.sh"

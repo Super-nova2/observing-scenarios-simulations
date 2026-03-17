@@ -6,8 +6,8 @@
 # distribution file is not traversed repeatedly by bayestar-inject.
 #
 # Usage:
-#   ./slurm/nsbh/submit_nsbh_training_batch.sh
-#   ./slurm/nsbh/submit_nsbh_training_batch.sh 100000 1000 8 42 "O5a" 200
+#   ./slurm/nsbh_training/submit_nsbh_training_batch.sh
+#   ./slurm/nsbh_training/submit_nsbh_training_batch.sh 100000 1000 8 42 "O5a" 200
 #
 # Args (positional):
 #   NSAMPLES      - Number of injections (default: 100000)
@@ -47,8 +47,8 @@ if [ ! -f "nsbh_training.h5" ]; then
 fi
 
 export NSAMPLES MAX_DIST NET_SNR_THR SEED RUNS EVENTS_PER_TASK
-JOB_ID=$(sbatch --parsable --export=ALL slurm/nsbh/make_nsbh_training_data.sh)
-PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/nsbh/prepare_nsbh_training_bayestar_array.sh)
+JOB_ID=$(sbatch --parsable --export=ALL slurm/nsbh_training/make_nsbh_training_data.sh)
+PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/nsbh_training/prepare_nsbh_training_bayestar_array.sh)
 
 echo ""
 echo "=============================================="

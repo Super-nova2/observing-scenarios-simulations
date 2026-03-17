@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=gw-bns-train-bayestar-prep
+#SBATCH --job-name=gw-nsbh-train-bayestar-prep
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=02:00:00
 #SBATCH --mem=16G
-#SBATCH --gres=tmp:1G
+#SBATCH --tmp=1G
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail
@@ -30,7 +30,7 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 # Override at submit time:
-#   sbatch --export=ALL,RUNS="O5a O5b",SEED=42,EVENTS_PER_TASK=200 slurm/prepare_bns_training_bayestar_array.sh
+#   sbatch --export=ALL,RUNS="O5a O5b",SEED=42,EVENTS_PER_TASK=200 slurm/nsbh_training/prepare_nsbh_training_bayestar_array.sh
 RUNS="${RUNS:-O5a}"
 SEED="${SEED:-42}"
 EVENTS_PER_TASK="${EVENTS_PER_TASK:-200}"
@@ -43,9 +43,9 @@ mkdir -p logs
 export OMP_NUM_THREADS=1
 
 for run in $RUNS; do
-  eventsfile="runs/$run/bns_training_seed${SEED}/events.xml.gz"
-  split_dir="runs/$run/bns_training_seed${SEED}/events_split"
-  list_file="runs/$run/bns_training_seed${SEED}/events_split.list"
+  eventsfile="runs/$run/nsbh_training_seed${SEED}/events.xml.gz"
+  split_dir="runs/$run/nsbh_training_seed${SEED}/events_split"
+  list_file="runs/$run/nsbh_training_seed${SEED}/events_split.list"
 
   if [ ! -e "$eventsfile" ]; then
     echo "Warning: $eventsfile not found, skipping $run"
@@ -81,7 +81,7 @@ for run in $RUNS; do
   ARRAY_JOB_ID=$(sbatch --parsable \
     --array=1-"$n_tasks" \
     --export=ALL,EVENT_LIST="$list_file",EVENTS_PER_TASK="$EVENTS_PER_TASK",F_LOW="$F_LOW" \
-    slurm/run_bns_training_bayestar_array.sh)
+    slurm/nsbh_training/run_nsbh_training_bayestar_array.sh)
 
   echo "  -> Array job ID: $ARRAY_JOB_ID"
 done
