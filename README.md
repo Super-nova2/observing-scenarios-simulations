@@ -106,6 +106,11 @@ For the BNS-only workflow added in this branch, use:
 
     $ bash slurm/bns/submit_bns_pipeline.sh
 
+For O5a-only astrophysical test-set workflows, use:
+
+    $ bash slurm/bns_test/submit_bns_test_batch.sh
+    $ bash slurm/nsbh_test/submit_nsbh_test_batch.sh
+
 ### What each Slurm job runs
 
 **`slurm/bgp/make_injections.sh`** runs:

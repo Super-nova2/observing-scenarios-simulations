@@ -19,3 +19,4 @@ runs
 
 # Logs
 logs/
+tests/test_test_distributions.py
