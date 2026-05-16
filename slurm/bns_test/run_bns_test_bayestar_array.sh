@@ -4,7 +4,6 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --time=8:00:00
 #SBATCH --mem=8G
-#SBATCH --gres=tmp:1G
 #SBATCH --output=logs/arrays/%x-%A_%a.out
 
 set -euo pipefail

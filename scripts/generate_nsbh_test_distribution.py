@@ -12,7 +12,7 @@ from astropy.table import Table
 DEFAULT_BH_MASS_MIN = 2.0606
 DEFAULT_BH_MASS_MAX = 20.0
 DEFAULT_NS_MASS_MIN = 1.0
-DEFAULT_NS_MASS_MAX = 2.0
+DEFAULT_NS_MASS_MAX = 2.0606
 DEFAULT_BH_SPIN_MAX = 0.99
 DEFAULT_NS_SPIN_MAX = 0.05
 
@@ -115,7 +115,7 @@ def parse_args() -> argparse.Namespace:
         "--bh-mass-min",
         type=float,
         default=DEFAULT_BH_MASS_MIN,
-        help="Minimum BH mass in Msun (default: 2.5)",
+        help="Minimum BH mass in Msun (default: 2.0606)",
     )
     parser.add_argument(
         "--bh-mass-max",
