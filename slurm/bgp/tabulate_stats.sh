@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=10:00:00
 #SBATCH --mem=64G
-#SBATCH --gres=tmp:1G
+#SBATCH --tmp=1G
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail

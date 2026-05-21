@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --time=24:00:00
 #SBATCH --mem=32G
-#SBATCH --gres=tmp:1G
+#SBATCH --tmp=1G
 #SBATCH --output=logs/%x-%j.out
 
 

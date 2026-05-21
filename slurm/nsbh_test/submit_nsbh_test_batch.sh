@@ -24,6 +24,8 @@ SEED="${4:-42}"
 EVENTS_PER_TASK="${5:-200}"
 RUNS="${RUNS:-O5aLVK}"
 FORCE_DIST="${FORCE_DIST:-0}"
+MASS_METHOD="${MASS_METHOD:-bgp}"
+BGP_INPUT="${BGP_INPUT:-AllCBC_FullPopBGP.h5}"
 
 if [ "$RUNS" != "O5aLVK" ]; then
   echo "NSBH test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
@@ -43,14 +45,19 @@ echo "Max distance:      $MAX_DIST Mpc"
 echo "Net SNR threshold: $NET_SNR_THR"
 echo "Seed:             $SEED"
 echo "Events per task:  $EVENTS_PER_TASK"
+echo "Mass method:      $MASS_METHOD"
+echo "BGP input:        $BGP_INPUT"
 echo "Force distribution regeneration: $FORCE_DIST"
 echo "=============================================="
 
 if [ ! -f "nsbh_test.h5" ]; then
   echo "Note: nsbh_test.h5 not found. The job will generate it."
 fi
+if [ "$MASS_METHOD" = "bgp" ] && [ ! -f "$BGP_INPUT" ]; then
+  echo "Note: $BGP_INPUT not found. Run 'uv run make AllCBC_FullPopBGP.h5' before the job starts."
+fi
 
-export NSAMPLES MAX_DIST NET_SNR_THR SEED EVENTS_PER_TASK RUNS FORCE_DIST
+export NSAMPLES MAX_DIST NET_SNR_THR SEED EVENTS_PER_TASK RUNS FORCE_DIST MASS_METHOD BGP_INPUT
 JOB_ID=$(sbatch --parsable --export=ALL slurm/nsbh_test/make_nsbh_test_data.sh)
 PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/nsbh_test/prepare_nsbh_test_bayestar_array.sh)
 

@@ -38,6 +38,8 @@ MAX_DIST="${MAX_DIST:-1000}"
 NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-nsbh_test.h5}"
 FORCE_DIST="${FORCE_DIST:-0}"
+MASS_METHOD="${MASS_METHOD:-bgp}"
+BGP_INPUT="${BGP_INPUT:-AllCBC_FullPopBGP.h5}"
 
 if [ "$RUNS" != "O5aLVK" ]; then
   echo "NSBH test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
@@ -56,15 +58,24 @@ echo "N samples:         $NSAMPLES"
 echo "Max distance:      $MAX_DIST Mpc"
 echo "Net SNR threshold: $NET_SNR_THR"
 echo "Distribution:      $DIST_FILE"
+echo "Mass method:       $MASS_METHOD"
+echo "BGP input:         $BGP_INPUT"
 echo "Force distribution regeneration: $FORCE_DIST"
 echo "=============================================="
+
+if [ "$MASS_METHOD" = "bgp" ] && [ ! -f "$BGP_INPUT" ]; then
+  echo "Missing $BGP_INPUT. Run 'uv run make AllCBC_FullPopBGP.h5' on a login node first."
+  exit 2
+fi
 
 if [ "$FORCE_DIST" -eq 1 ] || [ ! -f "$DIST_FILE" ]; then
   echo "[Step 0/4] Generating NSBH test distribution file..."
   uv run python scripts/generate_nsbh_test_distribution.py \
     -o "$DIST_FILE" \
     -n "$NSAMPLES" \
-    --seed "$SEED"
+    --seed "$SEED" \
+    --mass-method "$MASS_METHOD" \
+    --bgp-input "$BGP_INPUT"
 else
   echo "[Step 0/4] Using existing distribution file: $DIST_FILE"
 fi

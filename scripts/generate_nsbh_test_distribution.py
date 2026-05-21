@@ -8,6 +8,8 @@ import argparse
 import numpy as np
 from astropy.table import Table
 
+from bgp_test_sampling import load_bgp_mass_grid, sample_nsbh_masses_from_grid
+
 
 DEFAULT_BH_MASS_MIN = 2.05
 DEFAULT_BH_MASS_MAX = 10.0
@@ -15,6 +17,7 @@ DEFAULT_NS_MASS_MIN = 1.0
 DEFAULT_NS_MASS_MAX = 2.05
 DEFAULT_BH_SPIN_MAX = 0.99
 DEFAULT_NS_SPIN_MAX = 0.1
+DEFAULT_BGP_INPUT = "AllCBC_FullPopBGP.h5"
 
 
 def _sample_truncated_normal(
@@ -50,6 +53,10 @@ def generate_distribution(
     ns_mass_max: float = DEFAULT_NS_MASS_MAX,
     bh_spin_max: float = DEFAULT_BH_SPIN_MAX,
     ns_spin_max: float = DEFAULT_NS_SPIN_MAX,
+    mass_method: str = "bgp",
+    bgp_input: str = DEFAULT_BGP_INPUT,
+    bgp_edges: np.ndarray | None = None,
+    bgp_rates: np.ndarray | None = None,
 ) -> Table:
     if nsamples <= 0:
         raise ValueError("nsamples must be > 0")
@@ -63,18 +70,34 @@ def generate_distribution(
         raise ValueError("bh_spin_max must be >= 0")
     if ns_spin_max < 0:
         raise ValueError("ns_spin_max must be >= 0")
+    if mass_method not in {"bgp", "custom"}:
+        raise ValueError("mass_method must be 'bgp' or 'custom'")
 
     rng = np.random.default_rng(seed)
 
-    mass1 = rng.uniform(bh_mass_min, bh_mass_max, nsamples)
-    mass2 = _sample_truncated_normal(
-        rng,
-        nsamples,
-        ns_mass_mean,
-        ns_mass_sigma,
-        ns_mass_min,
-        ns_mass_max,
-    )
+    if mass_method == "bgp":
+        if bgp_edges is None or bgp_rates is None:
+            bgp_edges, bgp_rates = load_bgp_mass_grid(bgp_input)
+        mass1, mass2 = sample_nsbh_masses_from_grid(
+            bgp_edges,
+            bgp_rates,
+            nsamples=nsamples,
+            rng=rng,
+            ns_mass_min=ns_mass_min,
+            ns_mass_max=ns_mass_max,
+            bh_mass_min=bh_mass_min,
+            bh_mass_max=bh_mass_max,
+        )
+    else:
+        mass1 = rng.uniform(bh_mass_min, bh_mass_max, nsamples)
+        mass2 = _sample_truncated_normal(
+            rng,
+            nsamples,
+            ns_mass_mean,
+            ns_mass_sigma,
+            ns_mass_min,
+            ns_mass_max,
+        )
     spin1z = rng.uniform(-bh_spin_max, bh_spin_max, nsamples)
     spin2z = rng.uniform(-ns_spin_max, ns_spin_max, nsamples)
 
@@ -147,6 +170,17 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_BH_SPIN_MAX,
         help="Maximum BH aligned spin magnitude (default: 0.99)",
     )
+    parser.add_argument(
+        "--mass-method",
+        choices=("bgp", "custom"),
+        default="bgp",
+        help="Mass sampling method: bgp rate grid or legacy custom distribution (default: bgp)",
+    )
+    parser.add_argument(
+        "--bgp-input",
+        default=DEFAULT_BGP_INPUT,
+        help=f"BGP PopSummary input file (default: {DEFAULT_BGP_INPUT})",
+    )
     return parser.parse_args()
 
 
@@ -161,10 +195,15 @@ def main() -> None:
         ns_mass_sigma=args.ns_mass_sigma,
         ns_spin_max=args.ns_spin_max,
         bh_spin_max=args.bh_spin_max,
+        mass_method=args.mass_method,
+        bgp_input=args.bgp_input,
     )
     table.write(args.output, overwrite=True)
 
     print(f"Saved {len(table):,} NSBH test samples to {args.output}")
+    print(f"  mass_method: {args.mass_method}")
+    if args.mass_method == "bgp":
+        print(f"  bgp_input: {args.bgp_input}")
     for colname in table.colnames:
         values = np.asarray(table[colname])
         print(

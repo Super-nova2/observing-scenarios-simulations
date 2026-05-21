@@ -15,10 +15,13 @@ import argparse
 import numpy as np
 from astropy.table import Table
 
+from bgp_test_sampling import load_bgp_mass_grid, sample_bns_masses_from_grid
+
 
 DEFAULT_RECYCLED_MASS_MIN = 1.0
 DEFAULT_RECYCLED_MASS_MAX = 2.05
 DEFAULT_SPIN_MAX = 0.1
+DEFAULT_BGP_INPUT = "AllCBC_FullPopBGP.h5"
 
 
 def _sample_recycled_mass(
@@ -54,6 +57,10 @@ def generate_distribution(
     nonrecycled_mass_min: float = 1.16,
     nonrecycled_mass_max: float = 1.42,
     spin_max: float = DEFAULT_SPIN_MAX,
+    mass_method: str = "bgp",
+    bgp_input: str = DEFAULT_BGP_INPUT,
+    bgp_edges: np.ndarray | None = None,
+    bgp_rates: np.ndarray | None = None,
 ) -> Table:
     if nsamples <= 0:
         raise ValueError("nsamples must be > 0")
@@ -63,23 +70,37 @@ def generate_distribution(
         raise ValueError("nonrecycled_mass_min must be < nonrecycled_mass_max")
     if spin_max < 0:
         raise ValueError("spin_max must be >= 0")
+    if mass_method not in {"bgp", "custom"}:
+        raise ValueError("mass_method must be 'bgp' or 'custom'")
 
     rng = np.random.default_rng(seed)
 
-    mass_recycled = _sample_recycled_mass(
-        rng,
-        nsamples,
-        recycled_mass_min,
-        recycled_mass_max,
-    )
-    mass_nonrecycled = rng.uniform(
-        nonrecycled_mass_min,
-        nonrecycled_mass_max,
-        nsamples,
-    )
+    if mass_method == "bgp":
+        if bgp_edges is None or bgp_rates is None:
+            bgp_edges, bgp_rates = load_bgp_mass_grid(bgp_input)
+        mass1, mass2 = sample_bns_masses_from_grid(
+            bgp_edges,
+            bgp_rates,
+            nsamples=nsamples,
+            rng=rng,
+            ns_mass_min=recycled_mass_min,
+            ns_mass_max=recycled_mass_max,
+        )
+    else:
+        mass_recycled = _sample_recycled_mass(
+            rng,
+            nsamples,
+            recycled_mass_min,
+            recycled_mass_max,
+        )
+        mass_nonrecycled = rng.uniform(
+            nonrecycled_mass_min,
+            nonrecycled_mass_max,
+            nsamples,
+        )
 
-    mass1 = np.maximum(mass_recycled, mass_nonrecycled)
-    mass2 = np.minimum(mass_recycled, mass_nonrecycled)
+        mass1 = np.maximum(mass_recycled, mass_nonrecycled)
+        mass2 = np.minimum(mass_recycled, mass_nonrecycled)
     spin1z = rng.uniform(-spin_max, spin_max, nsamples)
     spin2z = rng.uniform(-spin_max, spin_max, nsamples)
 
@@ -134,6 +155,17 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_SPIN_MAX,
         help="Maximum aligned spin magnitude (default: 0.1)",
     )
+    parser.add_argument(
+        "--mass-method",
+        choices=("bgp", "custom"),
+        default="bgp",
+        help="Mass sampling method: bgp rate grid or legacy custom distribution (default: bgp)",
+    )
+    parser.add_argument(
+        "--bgp-input",
+        default=DEFAULT_BGP_INPUT,
+        help=f"BGP PopSummary input file (default: {DEFAULT_BGP_INPUT})",
+    )
     return parser.parse_args()
 
 
@@ -145,10 +177,15 @@ def main() -> None:
         recycled_mass_min=args.recycled_mass_min,
         recycled_mass_max=args.recycled_mass_max,
         spin_max=args.spin_max,
+        mass_method=args.mass_method,
+        bgp_input=args.bgp_input,
     )
     table.write(args.output, overwrite=True)
 
     print(f"Saved {len(table):,} BNS test samples to {args.output}")
+    print(f"  mass_method: {args.mass_method}")
+    if args.mass_method == "bgp":
+        print(f"  bgp_input: {args.bgp_input}")
     for colname in table.colnames:
         values = np.asarray(table[colname])
         print(
