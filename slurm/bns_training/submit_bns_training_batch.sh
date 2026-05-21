@@ -7,14 +7,14 @@
 #
 # Usage:
 #   ./slurm/bns_training/submit_bns_training_batch.sh
-#   ./slurm/bns_training/submit_bns_training_batch.sh 100000 500 8 42 "O5a" 200
+#   ./slurm/bns_training/submit_bns_training_batch.sh 100000 500 8 42 "O5aLVK" 200
 #
 # Args (positional):
 #   NSAMPLES      - Number of injections (default: 100000)
 #   MAX_DIST      - Maximum distance in Mpc (default: 500)
 #   NET_SNR_THR   - Network SNR threshold (default: 8)
 #   SEED          - Random seed (default: 42)
-#   RUNS          - Observing run(s) (default: O5a)
+#   RUNS          - Observing run(s) (default: O5aLVK)
 #   EVENTS_PER_TASK - Events per localization task (default: 200)
 # ============================================================================
 
@@ -24,7 +24,7 @@ NSAMPLES="${1:-100000}"
 MAX_DIST="${2:-500}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
-RUNS="${5:-O5a}"
+RUNS="${5:-O5aLVK}"
 EVENTS_PER_TASK="${6:-200}"
 
 echo "=============================================="

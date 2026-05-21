@@ -29,8 +29,8 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
 fi
 
-# Override at submit time: sbatch --export=ALL,RUNS="O5a O5b",SEED=1
-RUNS="${RUNS:-O5a}"
+# Override at submit time: sbatch --export=ALL,RUNS="O5aLVK O5b",SEED=1
+RUNS="${RUNS:-O5aLVK}"
 SEED="${SEED:-1}"
 F_LOW="${F_LOW:-11}"
 

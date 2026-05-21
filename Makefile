@@ -1,4 +1,4 @@
-RUNS = O4HL O4HLV O5a O5b O5c
+RUNS = O4HL O4HLV O5a O5b O5c O5aLVK
 POPS = bgp
 FILENAMES = events events.xml.gz events.sqlite injections.dat coincs.dat
 BAYESTAR_JOBS ?= 16
@@ -35,6 +35,11 @@ O5a-psds = \
 	--H1 O5StrainCurves_freqabc.txt --H1-column O5aStrain \
 	--L1 O5StrainCurves_freqabc.txt --L1-column O5aStrain \
 	--V1 25115_O5Tier1LowSensASD.txt
+O5aLVK-psds = \
+	--H1 O5StrainCurves_freqabc.txt --H1-column O5aStrain \
+	--L1 O5StrainCurves_freqabc.txt --L1-column O5aStrain \
+	--V1 25115_O5Tier1LowSensASD.txt \
+	--K1 KAGRA25MpcT1800545.txt
 O5b-psds = \
 	--H1 O5StrainCurves_freqabc.txt --H1-column O5bStrain \
 	--L1 O5StrainCurves_freqabc.txt --L1-column O5bStrain \
@@ -69,7 +74,6 @@ O5StrainCurves_freqabc.txt:
 
 25115_O5Tier1HighSensASD.txt:
 	curl -o $@ -L https://tds.virgo-gw.eu/?call_file=$(@F)
-
 
 #
 # Pack PSDs into XML files for input to BAYESTAR.

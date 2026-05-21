@@ -15,8 +15,8 @@
 # to maximize parameter space coverage.
 #
 # NSBH systems have asymmetric parameters:
-#   mass1 (BH): [2.5, 20.0] Msun, spin [-0.99, 0.99]
-#   mass2 (NS): [1.0, 2.5] Msun,  spin [-0.5, 0.5]
+#   mass1 (BH): [2.05, 10.0] Msun, spin [-0.99, 0.99]
+#   mass2 (NS): [1.0, 2.05] Msun,  spin [-0.1, 0.1]
 #
 # Usage:
 #   sbatch slurm/nsbh_training/make_nsbh_training_data.sh
@@ -24,7 +24,7 @@
 #
 # Configuration via environment variables:
 #   SEED         - Random seed (default: 42)
-#   RUNS         - Observing run (default: O5a)
+#   RUNS         - Observing run (default: O5aLVK)
 #   NSAMPLES     - Number of injections (default: 500000)
 #   MAX_DIST     - Maximum distance in Mpc (default: 1000)
 #   NET_SNR_THR  - Network SNR threshold (default: 5, lower = more events)
@@ -58,7 +58,7 @@ fi
 
 # Configuration with defaults
 SEED="${SEED:-42}"
-RUNS="${RUNS:-O5a}"
+RUNS="${RUNS:-O5aLVK}"
 NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-1000}"
 NET_SNR_THR="${NET_SNR_THR:-8}"
@@ -84,12 +84,12 @@ if [ ! -f "$DIST_FILE" ]; then
   uv run python scripts/generate_nsbh_training_distribution.py \
     -o "$DIST_FILE" \
     -n "$NSAMPLES" \
-    --bh-mass-min 2.0 \
-    --bh-mass-max 20.0 \
+    --bh-mass-min 2.05 \
+    --bh-mass-max 10.0 \
     --ns-mass-min 1.0 \
-    --ns-mass-max 2.0 \
+    --ns-mass-max 2.05 \
     --bh-spin-max 0.99 \
-    --ns-spin-max 0.5 \
+    --ns-spin-max 0.1 \
     --seed "$SEED" \
     --stratified
 else
@@ -110,6 +110,7 @@ get_detectors() {
   case "$run" in
     O4HL)  echo "H1 L1" ;;
     O4HLV) echo "H1 L1 V1" ;;
+    O5aLVK) echo "H1 L1 V1 K1" ;;
     O5*)   echo "H1 L1 V1" ;;
     *)     echo "H1 L1" ;;
   esac

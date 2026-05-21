@@ -1,14 +1,14 @@
 #!/bin/bash
 # ============================================================================
-# Submit a Single O5a NSBH Test Data Generation Job
+# Submit a Single O5aLVK NSBH Test Data Generation Job
 # ============================================================================
 #
 # Usage:
 #   bash slurm/nsbh_test/submit_nsbh_test_batch.sh
-#   bash slurm/nsbh_test/submit_nsbh_test_batch.sh 50000 1000 8 42 200
+#   bash slurm/nsbh_test/submit_nsbh_test_batch.sh 100000 1000 8 42 200
 #
 # Args (positional):
-#   NSAMPLES        - Number of injections (default: 50000)
+#   NSAMPLES        - Number of injections (default: 100000)
 #   MAX_DIST        - Maximum distance in Mpc (default: 1000)
 #   NET_SNR_THR     - Network SNR threshold (default: 8)
 #   SEED            - Random seed (default: 42)
@@ -17,16 +17,16 @@
 
 set -euo pipefail
 
-NSAMPLES="${1:-50000}"
+NSAMPLES="${1:-100000}"
 MAX_DIST="${2:-1000}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
 EVENTS_PER_TASK="${5:-200}"
-RUNS="${RUNS:-O5a}"
+RUNS="${RUNS:-O5aLVK}"
 FORCE_DIST="${FORCE_DIST:-0}"
 
-if [ "$RUNS" != "O5a" ]; then
-  echo "NSBH test workflow is O5a-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5aLVK" ]; then
+  echo "NSBH test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 
@@ -36,7 +36,7 @@ cd "$PROJECT_DIR"
 mkdir -p logs logs/arrays
 
 echo "=============================================="
-echo "NSBH Test Data Submission (O5a Single Job)"
+echo "NSBH Test Data Submission ($RUNS Single Job)"
 echo "=============================================="
 echo "Samples:          $NSAMPLES"
 echo "Max distance:      $MAX_DIST Mpc"
@@ -62,5 +62,5 @@ echo "Localization prep job ID: $PREP_JOB_ID (afterok:$JOB_ID)"
 echo "The prep job will split events and submit an array localization."
 echo ""
 echo "Monitor with: squeue -u $USER"
-echo "Expected output directory: runs/O5a/nsbh_test_seed${SEED}/"
+echo "Expected output directory: runs/$RUNS/nsbh_test_seed${SEED}/"
 echo "=============================================="

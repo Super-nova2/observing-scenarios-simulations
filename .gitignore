@@ -20,3 +20,4 @@ runs
 # Logs
 logs/
 tests/test_test_distributions.py
+slurm/bns_training/bns_training_workflow_analysis.html

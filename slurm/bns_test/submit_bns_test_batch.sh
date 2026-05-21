@@ -1,14 +1,14 @@
 #!/bin/bash
 # ============================================================================
-# Submit a Single O5a BNS Test Data Generation Job
+# Submit a Single O5aLVK BNS Test Data Generation Job
 # ============================================================================
 #
 # Usage:
 #   bash slurm/bns_test/submit_bns_test_batch.sh
-#   bash slurm/bns_test/submit_bns_test_batch.sh 10000 500 8 42 200
+#   bash slurm/bns_test/submit_bns_test_batch.sh 5000 500 8 42 200
 #
 # Args (positional):
-#   NSAMPLES        - Number of injections (default: 10000)
+#   NSAMPLES        - Number of injections (default: 5000)
 #   MAX_DIST        - Maximum distance in Mpc (default: 500)
 #   NET_SNR_THR     - Network SNR threshold (default: 8)
 #   SEED            - Random seed (default: 42)
@@ -17,16 +17,16 @@
 
 set -euo pipefail
 
-NSAMPLES="${1:-10000}"
+NSAMPLES="${1:-5000}"
 MAX_DIST="${2:-500}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
 EVENTS_PER_TASK="${5:-200}"
-RUNS="${RUNS:-O5a}"
+RUNS="${RUNS:-O5aLVK}"
 FORCE_DIST="${FORCE_DIST:-0}"
 
-if [ "$RUNS" != "O5a" ]; then
-  echo "BNS test workflow is O5a-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5aLVK" ]; then
+  echo "BNS test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 
@@ -36,7 +36,7 @@ cd "$PROJECT_DIR"
 mkdir -p logs logs/arrays
 
 echo "=============================================="
-echo "BNS Test Data Submission (O5a Single Job)"
+echo "BNS Test Data Submission ($RUNS Single Job)"
 echo "=============================================="
 echo "Samples:          $NSAMPLES"
 echo "Max distance:      $MAX_DIST Mpc"
@@ -62,5 +62,5 @@ echo "Localization prep job ID: $PREP_JOB_ID (afterok:$JOB_ID)"
 echo "The prep job will split events and submit an array localization."
 echo ""
 echo "Monitor with: squeue -u $USER"
-echo "Expected output directory: runs/O5a/bns_test_seed${SEED}/"
+echo "Expected output directory: runs/$RUNS/bns_test_seed${SEED}/"
 echo "=============================================="

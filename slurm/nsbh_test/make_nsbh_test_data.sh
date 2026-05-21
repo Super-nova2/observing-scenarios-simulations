@@ -31,7 +31,7 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
 fi
 
-RUNS="${RUNS:-O5a}"
+RUNS="${RUNS:-O5aLVK}"
 SEED="${SEED:-42}"
 NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-1000}"
@@ -39,8 +39,8 @@ NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-nsbh_test.h5}"
 FORCE_DIST="${FORCE_DIST:-0}"
 
-if [ "$RUNS" != "O5a" ]; then
-  echo "NSBH test workflow is O5a-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5aLVK" ]; then
+  echo "NSBH test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 
@@ -50,7 +50,7 @@ mkdir -p logs
 echo "=============================================="
 echo "NSBH Test Data Generator"
 echo "=============================================="
-echo "Run:               O5a"
+echo "Run:               $RUNS"
 echo "Seed:              $SEED"
 echo "N samples:         $NSAMPLES"
 echo "Max distance:      $MAX_DIST Mpc"
@@ -69,12 +69,12 @@ else
   echo "[Step 0/4] Using existing distribution file: $DIST_FILE"
 fi
 
-if [ ! -s "runs/O5a/psds.xml" ]; then
-  echo "Missing runs/O5a/psds.xml. Run 'uv run make RUNS=\"O5a\" psds' first."
+if [ ! -s "runs/$RUNS/psds.xml" ]; then
+  echo "Missing runs/$RUNS/psds.xml. Run 'uv run make RUNS=\"$RUNS\" psds' first."
   exit 2
 fi
 
-OUTDIR="runs/O5a/nsbh_test_seed${SEED}"
+OUTDIR="runs/$RUNS/nsbh_test_seed${SEED}"
 mkdir -p "$OUTDIR"
 
 echo "[Step 1/4] Generating NSBH test injections..."
@@ -83,7 +83,7 @@ uv run bayestar-inject -l error --seed "$SEED" \
   -j "$BAYESTAR_JOBS" \
   --snr-threshold 1 \
   --distribution-samples "$DIST_FILE" \
-  --reference-psd "runs/O5a/psds.xml" \
+  --reference-psd "runs/$RUNS/psds.xml" \
   --min-triggers 1 \
   --max-distance "$MAX_DIST" \
   --nsamples "$NSAMPLES"
@@ -95,14 +95,14 @@ uv run bayestar-realize-coincs \
   -l error \
   -o "$OUTDIR/events.xml.gz" \
   "$OUTDIR/injections.xml" \
-  --reference-psd "runs/O5a/psds.xml" \
+  --reference-psd "runs/$RUNS/psds.xml" \
   --snr-threshold 1 \
   --net-snr-threshold "$NET_SNR_THR" \
   --min-triggers 1 \
   --duty-cycle 0.7 \
   --keep-subthreshold \
   --measurement-error gaussian-noise \
-  --detector H1 L1 V1
+  --detector H1 L1 V1 K1
 
 echo "[Step 3/4] Generating injections.dat..."
 INJECTIONS_COLS="simulation_id longitude latitude inclination distance mass1 mass2 spin1z spin2z"
@@ -124,7 +124,7 @@ DETECTION_RATE=$(echo "scale=2; 100 * $N_DETECTED / $NSAMPLES" | bc)
 
 echo ""
 echo "=============================================="
-echo "Summary for O5a NSBH test (seed=$SEED)"
+echo "Summary for $RUNS NSBH test (seed=$SEED)"
 echo "=============================================="
 echo "Output directory: $OUTDIR"
 echo "Total injections: $N_INJECTIONS"

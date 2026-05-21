@@ -20,10 +20,10 @@
 #
 # Configuration via environment variables:
 #   SEED         - Random seed (default: 42)
-#   RUNS         - Observing run (default: O5a)
-#   NSAMPLES     - Number of injections (default: 500000)
+#   RUNS         - Observing run (default: O5aLVK)
+#   NSAMPLES     - Number of injections (default: 100000)
 #   MAX_DIST     - Maximum distance in Mpc (default: 400)
-#   NET_SNR_THR  - Network SNR threshold (default: 5, lower = more events)
+#   NET_SNR_THR  - Network SNR threshold (default: 8, lower = more events)
 #   DIST_FILE    - Distribution file (default: bns_training.h5)
 # ============================================================================
 
@@ -54,10 +54,10 @@ fi
 
 # Configuration with defaults
 SEED="${SEED:-42}"
-RUNS="${RUNS:-O5a}"
-NSAMPLES="${NSAMPLES:-500000}"
+RUNS="${RUNS:-O5aLVK}"
+NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-400}"
-NET_SNR_THR="${NET_SNR_THR:-5}"
+NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-bns_training.h5}"
 
 cd "$PROJECT_DIR"
@@ -81,8 +81,8 @@ if [ ! -f "$DIST_FILE" ]; then
     -o "$DIST_FILE" \
     -n "$NSAMPLES" \
     --mass-min 1.0 \
-    --mass-max 2.0606 \
-    --spin-max 0.5 \
+    --mass-max 2.05 \
+    --spin-max 0.1 \
     --seed "$SEED" \
     --stratified
 else
@@ -103,6 +103,7 @@ get_detectors() {
   case "$run" in
     O4HL)  echo "H1 L1" ;;
     O4HLV) echo "H1 L1 V1" ;;
+    O5aLVK) echo "H1 L1 V1 K1" ;;
     O5*)   echo "H1 L1 V1" ;;
     *)     echo "H1 L1" ;;
   esac

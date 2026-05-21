@@ -17,8 +17,8 @@ from astropy.table import Table
 
 
 DEFAULT_RECYCLED_MASS_MIN = 1.0
-DEFAULT_RECYCLED_MASS_MAX = 2.0606
-DEFAULT_SPIN_MAX = 0.05
+DEFAULT_RECYCLED_MASS_MAX = 2.05
+DEFAULT_SPIN_MAX = 0.1
 
 
 def _sample_recycled_mass(
@@ -126,13 +126,13 @@ def parse_args() -> argparse.Namespace:
         "--recycled-mass-max",
         type=float,
         default=DEFAULT_RECYCLED_MASS_MAX,
-        help="Maximum recycled NS mass in Msun (default: 2.0606)",
+        help="Maximum recycled NS mass in Msun (default: 2.05)",
     )
     parser.add_argument(
         "--spin-max",
         type=float,
         default=DEFAULT_SPIN_MAX,
-        help="Maximum aligned spin magnitude (default: 0.05)",
+        help="Maximum aligned spin magnitude (default: 0.1)",
     )
     return parser.parse_args()
 

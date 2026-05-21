@@ -27,14 +27,14 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
 fi
 
-RUNS="${RUNS:-O5a}"
+RUNS="${RUNS:-O5aLVK}"
 SEED="${SEED:-42}"
 EVENTS_PER_TASK="${EVENTS_PER_TASK:-200}"
 F_LOW="${F_LOW:-11}"
 FORCE_SPLIT="${FORCE_SPLIT:-0}"
 
-if [ "$RUNS" != "O5a" ]; then
-  echo "BNS test workflow is O5a-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5aLVK" ]; then
+  echo "BNS test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 
@@ -43,9 +43,9 @@ mkdir -p logs logs/arrays
 
 export OMP_NUM_THREADS=1
 
-eventsfile="runs/O5a/bns_test_seed${SEED}/events.xml.gz"
-split_dir="runs/O5a/bns_test_seed${SEED}/events_split"
-list_file="runs/O5a/bns_test_seed${SEED}/events_split.list"
+eventsfile="runs/$RUNS/bns_test_seed${SEED}/events.xml.gz"
+split_dir="runs/$RUNS/bns_test_seed${SEED}/events_split"
+list_file="runs/$RUNS/bns_test_seed${SEED}/events_split.list"
 
 if [ ! -e "$eventsfile" ]; then
   echo "$eventsfile not found. Run slurm/bns_test/make_bns_test_data.sh first."
@@ -57,7 +57,7 @@ if [ "$FORCE_SPLIT" -eq 1 ]; then
 fi
 
 if [ ! -d "$split_dir" ]; then
-  echo "Splitting events for O5a BNS test (seed=$SEED)..."
+  echo "Splitting events for $RUNS BNS test (seed=$SEED)..."
   uv run python scripts/split-events.py "$eventsfile" "$split_dir"
 fi
 
@@ -66,14 +66,14 @@ if [ ! -s "$list_file" ]; then
 fi
 
 if [ ! -s "$list_file" ]; then
-  echo "No split events found for O5a BNS test (seed=$SEED)."
+  echo "No split events found for $RUNS BNS test (seed=$SEED)."
   exit 2
 fi
 
 n_events=$(wc -l < "$list_file")
 n_tasks=$(( (n_events + EVENTS_PER_TASK - 1) / EVENTS_PER_TASK ))
 
-echo "Submitting BNS test localization array for O5a (seed=$SEED)"
+echo "Submitting BNS test localization array for $RUNS (seed=$SEED)"
 echo "  Events: $n_events"
 echo "  Events per task: $EVENTS_PER_TASK"
 echo "  Array tasks: $n_tasks"

@@ -9,12 +9,12 @@ import numpy as np
 from astropy.table import Table
 
 
-DEFAULT_BH_MASS_MIN = 2.0606
-DEFAULT_BH_MASS_MAX = 20.0
+DEFAULT_BH_MASS_MIN = 2.05
+DEFAULT_BH_MASS_MAX = 10.0
 DEFAULT_NS_MASS_MIN = 1.0
-DEFAULT_NS_MASS_MAX = 2.0606
+DEFAULT_NS_MASS_MAX = 2.05
 DEFAULT_BH_SPIN_MAX = 0.99
-DEFAULT_NS_SPIN_MAX = 0.05
+DEFAULT_NS_SPIN_MAX = 0.1
 
 
 def _sample_truncated_normal(
@@ -115,13 +115,13 @@ def parse_args() -> argparse.Namespace:
         "--bh-mass-min",
         type=float,
         default=DEFAULT_BH_MASS_MIN,
-        help="Minimum BH mass in Msun (default: 2.0606)",
+        help="Minimum BH mass in Msun (default: 2.05)",
     )
     parser.add_argument(
         "--bh-mass-max",
         type=float,
         default=DEFAULT_BH_MASS_MAX,
-        help="Maximum BH mass in Msun (default: 20.0)",
+        help="Maximum BH mass in Msun (default: 10.0)",
     )
     parser.add_argument(
         "--ns-mass-mean",
@@ -139,7 +139,7 @@ def parse_args() -> argparse.Namespace:
         "--ns-spin-max",
         type=float,
         default=DEFAULT_NS_SPIN_MAX,
-        help="Maximum NS aligned spin magnitude (default: 0.05)",
+        help="Maximum NS aligned spin magnitude (default: 0.1)",
     )
     parser.add_argument(
         "--bh-spin-max",
