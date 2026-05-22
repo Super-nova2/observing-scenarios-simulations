@@ -34,11 +34,11 @@ O4HLV-psds = \
 O5a-psds = \
 	--H1 O5StrainCurves_freqabc.txt --H1-column O5aStrain \
 	--L1 O5StrainCurves_freqabc.txt --L1-column O5aStrain \
-	--V1 25115_O5Tier1LowSensASD.txt
+	--V1 25900_O5Stage1LowSensPSD.txt --V1-is-psd
 O5aLVK-psds = \
 	--H1 O5StrainCurves_freqabc.txt --H1-column O5aStrain \
 	--L1 O5StrainCurves_freqabc.txt --L1-column O5aStrain \
-	--V1 25115_O5Tier1LowSensASD.txt \
+	--V1 25900_O5Stage1LowSensPSD.txt --V1-is-psd \
 	--K1 KAGRA25MpcT1800545.txt
 O5b-psds = \
 	--H1 O5StrainCurves_freqabc.txt --H1-column O5bStrain \
@@ -70,6 +70,9 @@ O5StrainCurves_freqabc.txt:
 	curl -OL https://dcc.ligo.org/LIGO-T2500310-v2/public/$(@F)
 
 25115_O5Tier1LowSensASD.txt:
+	curl -o $@ -L https://tds.virgo-gw.eu/?call_file=$(@F)
+
+25900_O5Stage1LowSensPSD.txt:
 	curl -o $@ -L https://tds.virgo-gw.eu/?call_file=$(@F)
 
 25115_O5Tier1HighSensASD.txt:

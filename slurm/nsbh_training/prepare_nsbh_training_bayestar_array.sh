@@ -30,8 +30,8 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 # Override at submit time:
-#   sbatch --export=ALL,RUNS="O5aLVK O5b",SEED=42,EVENTS_PER_TASK=200 slurm/nsbh_training/prepare_nsbh_training_bayestar_array.sh
-RUNS="${RUNS:-O5aLVK}"
+#   sbatch --export=ALL,RUNS="O5a O5b",SEED=42,EVENTS_PER_TASK=200 slurm/nsbh_training/prepare_nsbh_training_bayestar_array.sh
+RUNS="${RUNS:-O5a}"
 SEED="${SEED:-42}"
 EVENTS_PER_TASK="${EVENTS_PER_TASK:-200}"
 F_LOW="${F_LOW:-11}"

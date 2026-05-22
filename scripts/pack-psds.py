@@ -25,16 +25,22 @@ parser.add_argument(
 for name, long_name in zip(detector_names, detector_long_names):
     parser.add_argument(
         f"--{name}",
-        metavar="PSD.txt",
+        metavar="SPECTRUM.txt",
         type=FileType("r"),
         default=SUPPRESS,
-        help=f"PSD filename for {long_name} detector",
+        help=f"ASD filename for {long_name} detector unless --{name}-is-psd is set",
     )
     parser.add_argument(
         f"--{name}-column",
         metavar="COLUMN",
         default=SUPPRESS,
         help=f"Column name for {long_name} detector",
+    )
+    parser.add_argument(
+        f"--{name}-is-psd",
+        action="store_true",
+        default=SUPPRESS,
+        help=f"Treat the {long_name} detector input as PSD instead of ASD",
     )
 args = parser.parse_args()
 
@@ -46,12 +52,15 @@ for name in detector_names:
 
     column = getattr(args, f"{name}_column", None)
     if column is None:
-        f, asd = np.loadtxt(psd_file).T
+        f, spectrum = np.loadtxt(psd_file).T
     else:
         data = np.genfromtxt(psd_file, names=True)
         f = data[data.dtype.names[0]]
-        asd = data[column]
-    psd = np.square(asd)
+        spectrum = data[column]
+    if getattr(args, f"{name}_is_psd", False):
+        psd = spectrum
+    else:
+        psd = np.square(spectrum)
 
     f0 = 10.0
     fmax = 4096.0

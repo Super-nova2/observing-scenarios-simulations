@@ -7,14 +7,14 @@
 #
 # Usage:
 #   ./slurm/bns_training/submit_bns_training_batch.sh
-#   ./slurm/bns_training/submit_bns_training_batch.sh 100000 500 8 42 "O5aLVK" 200
+#   ./slurm/bns_training/submit_bns_training_batch.sh 100000 500 8 42 "O5a" 200
 #
 # Args (positional):
 #   NSAMPLES      - Number of injections (default: 100000)
 #   MAX_DIST      - Maximum distance in Mpc (default: 500)
 #   NET_SNR_THR   - Network SNR threshold (default: 8)
 #   SEED          - Random seed (default: 42)
-#   RUNS          - Observing run(s) (default: O5aLVK)
+#   RUNS          - Observing run(s) (default: O5a)
 #   EVENTS_PER_TASK - Events per localization task (default: 200)
 # ============================================================================
 
@@ -24,8 +24,9 @@ NSAMPLES="${1:-100000}"
 MAX_DIST="${2:-500}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
-RUNS="${5:-O5aLVK}"
+RUNS="${5:-O5a}"
 EVENTS_PER_TASK="${6:-200}"
+FORCE_DIST="${FORCE_DIST:-1}"
 
 echo "=============================================="
 echo "BNS Training Data Submission (Single Job)"
@@ -36,17 +37,20 @@ echo "Net SNR threshold: $NET_SNR_THR"
 echo "Seed:             $SEED"
 echo "Runs:             $RUNS"
 echo "Events per task:  $EVENTS_PER_TASK"
+echo "Force distribution regeneration: $FORCE_DIST"
 echo "=============================================="
 
 PROJECT_DIR=/fred/oz016/bgao_kn/observing-scenarios-simulations
 
 cd "$PROJECT_DIR"
 
-if [ ! -f "bns_training.h5" ]; then
+if [ "$FORCE_DIST" -eq 1 ]; then
+  echo "Note: the job will regenerate bns_training.h5 even if it already exists."
+elif [ ! -f "bns_training.h5" ]; then
   echo "Note: bns_training.h5 not found. The job will generate it."
 fi
 
-export NSAMPLES MAX_DIST NET_SNR_THR SEED RUNS EVENTS_PER_TASK
+export NSAMPLES MAX_DIST NET_SNR_THR SEED RUNS EVENTS_PER_TASK FORCE_DIST
 JOB_ID=$(sbatch --parsable --export=ALL slurm/bns_training/make_bns_training_data.sh)
 PREP_JOB_ID=$(sbatch --parsable --dependency=afterok:$JOB_ID --export=ALL slurm/bns_training/prepare_bns_training_bayestar_array.sh)
 

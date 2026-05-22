@@ -20,11 +20,12 @@
 #
 # Configuration via environment variables:
 #   SEED         - Random seed (default: 42)
-#   RUNS         - Observing run (default: O5aLVK)
+#   RUNS         - Observing run (default: O5a)
 #   NSAMPLES     - Number of injections (default: 100000)
 #   MAX_DIST     - Maximum distance in Mpc (default: 400)
 #   NET_SNR_THR  - Network SNR threshold (default: 8, lower = more events)
 #   DIST_FILE    - Distribution file (default: bns_training.h5)
+#   FORCE_DIST   - Regenerate distribution file (default: 1; set 0 to reuse)
 # ============================================================================
 
 set -euo pipefail
@@ -54,11 +55,12 @@ fi
 
 # Configuration with defaults
 SEED="${SEED:-42}"
-RUNS="${RUNS:-O5aLVK}"
+RUNS="${RUNS:-O5a}"
 NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-400}"
 NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-bns_training.h5}"
+FORCE_DIST="${FORCE_DIST:-1}"
 
 cd "$PROJECT_DIR"
 mkdir -p logs
@@ -72,10 +74,11 @@ echo "N samples:        $NSAMPLES"
 echo "Max distance:     $MAX_DIST Mpc"
 echo "Net SNR threshold: $NET_SNR_THR"
 echo "Distribution:     $DIST_FILE"
+echo "Force distribution regeneration: $FORCE_DIST"
 echo "=============================================="
 
-# Step 0: Generate distribution file if needed
-if [ ! -f "$DIST_FILE" ]; then
+# Step 0: Generate distribution file
+if [ "$FORCE_DIST" -eq 1 ] || [ ! -f "$DIST_FILE" ]; then
   echo "[Step 0/4] Generating training distribution file..."
   uv run python scripts/generate_bns_training_distribution.py \
     -o "$DIST_FILE" \

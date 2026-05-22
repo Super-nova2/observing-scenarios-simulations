@@ -23,7 +23,7 @@ NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
 EVENTS_PER_TASK="${5:-200}"
 RUNS="${RUNS:-O5aLVK}"
-FORCE_DIST="${FORCE_DIST:-0}"
+FORCE_DIST="${FORCE_DIST:-1}"
 MASS_METHOD="${MASS_METHOD:-bgp}"
 BGP_INPUT="${BGP_INPUT:-AllCBC_FullPopBGP.h5}"
 
@@ -50,7 +50,9 @@ echo "BGP input:        $BGP_INPUT"
 echo "Force distribution regeneration: $FORCE_DIST"
 echo "=============================================="
 
-if [ ! -f "bns_test.h5" ]; then
+if [ "$FORCE_DIST" -eq 1 ]; then
+  echo "Note: the job will regenerate bns_test.h5 even if it already exists."
+elif [ ! -f "bns_test.h5" ]; then
   echo "Note: bns_test.h5 not found. The job will generate it."
 fi
 if [ "$MASS_METHOD" = "bgp" ] && [ ! -f "$BGP_INPUT" ]; then
