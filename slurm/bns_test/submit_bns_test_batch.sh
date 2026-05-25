@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================================
-# Submit a Single O5aLVK BNS Test Data Generation Job
+# Submit a Single O5a BNS Test Data Generation Job
 # ============================================================================
 #
 # Usage:
@@ -22,13 +22,13 @@ MAX_DIST="${2:-500}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
 EVENTS_PER_TASK="${5:-200}"
-RUNS="${RUNS:-O5aLVK}"
+RUNS="${RUNS:-O5a}"
 FORCE_DIST="${FORCE_DIST:-1}"
-MASS_METHOD="${MASS_METHOD:-bgp}"
+MASS_METHOD="${MASS_METHOD:-custom}"
 BGP_INPUT="${BGP_INPUT:-AllCBC_FullPopBGP.h5}"
 
-if [ "$RUNS" != "O5aLVK" ]; then
-  echo "BNS test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5a" ]; then
+  echo "BNS test workflow is O5a-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 

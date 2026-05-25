@@ -28,14 +28,14 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
 fi
 
-RUNS="${RUNS:-O5aLVK}"
+RUNS="${RUNS:-O5a}"
 SEED="${SEED:-42}"
 EVENTS_PER_TASK="${EVENTS_PER_TASK:-200}"
 F_LOW="${F_LOW:-11}"
 FORCE_SPLIT="${FORCE_SPLIT:-0}"
 
-if [ "$RUNS" != "O5aLVK" ]; then
-  echo "NSBH test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5a" ]; then
+  echo "NSBH test workflow is O5a-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 

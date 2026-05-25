@@ -2,10 +2,10 @@
 """
 Generate an astrophysical BNS test distribution for bayestar-inject.
 
-Masses follow the population used in
-lsst-wfst-kilonova-sim/notebooks/astro_pop.ipynb:
+Masses follow the custom BNS population summarized in
+BNS_NSBH_mass_distribution_summary.md:
   - recycled NS: double Gaussian mixture
-  - non-recycled NS: uniform distribution
+  - slow/second-born NS: double Gaussian mixture
 """
 
 from __future__ import annotations
@@ -18,29 +18,38 @@ from astropy.table import Table
 from bgp_test_sampling import load_bgp_mass_grid, sample_bns_masses_from_grid
 
 
-DEFAULT_RECYCLED_MASS_MIN = 1.0
-DEFAULT_RECYCLED_MASS_MAX = 2.05
+DEFAULT_NS_MASS_MIN = 1.0
+DEFAULT_NS_MASS_MAX = 2.05
+DEFAULT_RECYCLED_MASS_MIN = DEFAULT_NS_MASS_MIN
+DEFAULT_RECYCLED_MASS_MAX = DEFAULT_NS_MASS_MAX
+DEFAULT_SLOW_MASS_MIN = DEFAULT_NS_MASS_MIN
+DEFAULT_SLOW_MASS_MAX = DEFAULT_NS_MASS_MAX
 DEFAULT_SPIN_MAX = 0.1
+DEFAULT_MASS_METHOD = "custom"
 DEFAULT_BGP_INPUT = "AllCBC_FullPopBGP.h5"
 
 
-def _sample_recycled_mass(
+def _sample_truncated_gaussian_mixture(
     rng: np.random.Generator,
     nsamples: int,
     mass_min: float,
     mass_max: float,
+    weights: tuple[float, ...],
+    means: tuple[float, ...],
+    sigmas: tuple[float, ...],
 ) -> np.ndarray:
+    weights_array = np.asarray(weights, dtype=np.float64)
+    means_array = np.asarray(means, dtype=np.float64)
+    sigmas_array = np.asarray(sigmas, dtype=np.float64)
+    weights_array = weights_array / np.sum(weights_array)
+
     mass = np.empty(nsamples, dtype=np.float64)
     remaining = np.ones(nsamples, dtype=bool)
 
     while remaining.any():
         n_draw = int(np.sum(remaining))
-        component = rng.random(n_draw) < 0.68
-        proposal = np.where(
-            component,
-            rng.normal(1.34, 0.02, n_draw),
-            rng.normal(1.47, 0.15, n_draw),
-        )
+        component = rng.choice(len(weights_array), size=n_draw, p=weights_array)
+        proposal = rng.normal(means_array[component], sigmas_array[component])
         keep = (proposal >= mass_min) & (proposal <= mass_max)
         remaining_idx = np.flatnonzero(remaining)
         mass[remaining_idx[keep]] = proposal[keep]
@@ -49,15 +58,49 @@ def _sample_recycled_mass(
     return mass
 
 
+def _sample_recycled_mass(
+    rng: np.random.Generator,
+    nsamples: int,
+    mass_min: float,
+    mass_max: float,
+) -> np.ndarray:
+    return _sample_truncated_gaussian_mixture(
+        rng,
+        nsamples,
+        mass_min,
+        mass_max,
+        weights=(0.68, 0.32),
+        means=(1.34, 1.47),
+        sigmas=(0.02, 0.15),
+    )
+
+
+def _sample_slow_mass(
+    rng: np.random.Generator,
+    nsamples: int,
+    mass_min: float,
+    mass_max: float,
+) -> np.ndarray:
+    return _sample_truncated_gaussian_mixture(
+        rng,
+        nsamples,
+        mass_min,
+        mass_max,
+        weights=(0.50, 0.50),
+        means=(1.29, 1.80),
+        sigmas=(0.09, 0.15),
+    )
+
+
 def generate_distribution(
     nsamples: int = 100_000,
     seed: int = 42,
     recycled_mass_min: float = DEFAULT_RECYCLED_MASS_MIN,
     recycled_mass_max: float = DEFAULT_RECYCLED_MASS_MAX,
-    nonrecycled_mass_min: float = 1.16,
-    nonrecycled_mass_max: float = 1.42,
+    nonrecycled_mass_min: float = DEFAULT_SLOW_MASS_MIN,
+    nonrecycled_mass_max: float = DEFAULT_SLOW_MASS_MAX,
     spin_max: float = DEFAULT_SPIN_MAX,
-    mass_method: str = "bgp",
+    mass_method: str = DEFAULT_MASS_METHOD,
     bgp_input: str = DEFAULT_BGP_INPUT,
     bgp_edges: np.ndarray | None = None,
     bgp_rates: np.ndarray | None = None,
@@ -93,14 +136,15 @@ def generate_distribution(
             recycled_mass_min,
             recycled_mass_max,
         )
-        mass_nonrecycled = rng.uniform(
+        mass_slow = _sample_slow_mass(
+            rng,
+            nsamples,
             nonrecycled_mass_min,
             nonrecycled_mass_max,
-            nsamples,
         )
 
-        mass1 = np.maximum(mass_recycled, mass_nonrecycled)
-        mass2 = np.minimum(mass_recycled, mass_nonrecycled)
+        mass1 = np.maximum(mass_recycled, mass_slow)
+        mass2 = np.minimum(mass_recycled, mass_slow)
     spin1z = rng.uniform(-spin_max, spin_max, nsamples)
     spin2z = rng.uniform(-spin_max, spin_max, nsamples)
 
@@ -158,8 +202,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--mass-method",
         choices=("bgp", "custom"),
-        default="bgp",
-        help="Mass sampling method: bgp rate grid or legacy custom distribution (default: bgp)",
+        default=DEFAULT_MASS_METHOD,
+        help="Mass sampling method: custom distribution or bgp rate grid (default: custom)",
     )
     parser.add_argument(
         "--bgp-input",

@@ -2,7 +2,7 @@
 #SBATCH --job-name=bns-test-gen
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
-#SBATCH --time=24:00:00
+#SBATCH --time=4:00:00
 #SBATCH --mem=32G
 #SBATCH --output=logs/%x-%j.out
 
@@ -30,18 +30,18 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
   export LAL_DATA_PATH="$HOME/lalsuite-waveform-data"
 fi
 
-RUNS="${RUNS:-O5aLVK}"
+RUNS="${RUNS:-O5a}"
 SEED="${SEED:-42}"
 NSAMPLES="${NSAMPLES:-100000}"
 MAX_DIST="${MAX_DIST:-500}"
 NET_SNR_THR="${NET_SNR_THR:-8}"
 DIST_FILE="${DIST_FILE:-bns_test.h5}"
 FORCE_DIST="${FORCE_DIST:-1}"
-MASS_METHOD="${MASS_METHOD:-bgp}"
+MASS_METHOD="${MASS_METHOD:-custom}"
 BGP_INPUT="${BGP_INPUT:-AllCBC_FullPopBGP.h5}"
 
-if [ "$RUNS" != "O5aLVK" ]; then
-  echo "BNS test workflow is O5aLVK-only; got RUNS=\"$RUNS\"."
+if [ "$RUNS" != "O5a" ]; then
+  echo "BNS test workflow is O5a-only; got RUNS=\"$RUNS\"."
   exit 2
 fi
 
@@ -112,7 +112,7 @@ uv run bayestar-realize-coincs \
   --duty-cycle 0.7 \
   --keep-subthreshold \
   --measurement-error gaussian-noise \
-  --detector H1 L1 V1 K1
+  --detector H1 L1 V1
 
 echo "[Step 3/4] Generating injections.dat..."
 INJECTIONS_COLS="simulation_id longitude latitude inclination distance mass1 mass2 spin1z spin2z"

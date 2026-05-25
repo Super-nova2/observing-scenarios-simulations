@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a simple astrophysical NSBH test distribution for bayestar-inject."""
+"""Generate an astrophysical NSBH test distribution for bayestar-inject."""
 
 from __future__ import annotations
 
@@ -12,34 +12,31 @@ from bgp_test_sampling import load_bgp_mass_grid, sample_nsbh_masses_from_grid
 
 
 DEFAULT_BH_MASS_MIN = 2.05
-DEFAULT_BH_MASS_MAX = 10.0
+DEFAULT_BH_MASS_MAX = 20.0
 DEFAULT_NS_MASS_MIN = 1.0
 DEFAULT_NS_MASS_MAX = 2.05
+DEFAULT_BH_POWERLAW_ALPHA = 2.7
 DEFAULT_BH_SPIN_MAX = 0.99
 DEFAULT_NS_SPIN_MAX = 0.1
+DEFAULT_MASS_METHOD = "custom"
 DEFAULT_BGP_INPUT = "AllCBC_FullPopBGP.h5"
 
 
-def _sample_truncated_normal(
+def _sample_truncated_power_law(
     rng: np.random.Generator,
     nsamples: int,
-    mean: float,
-    sigma: float,
-    low: float,
-    high: float,
+    mass_min: float,
+    mass_max: float,
+    alpha: float,
 ) -> np.ndarray:
-    values = np.empty(nsamples, dtype=np.float64)
-    remaining = np.ones(nsamples, dtype=bool)
+    u = rng.random(nsamples)
+    if np.isclose(alpha, 1.0):
+        return mass_min * np.exp(u * np.log(mass_max / mass_min))
 
-    while remaining.any():
-        n_draw = int(np.sum(remaining))
-        proposal = rng.normal(mean, sigma, n_draw)
-        keep = (proposal >= low) & (proposal <= high)
-        remaining_idx = np.flatnonzero(remaining)
-        values[remaining_idx[keep]] = proposal[keep]
-        remaining[remaining_idx[keep]] = False
-
-    return values
+    exponent = 1.0 - alpha
+    low = mass_min**exponent
+    high = mass_max**exponent
+    return (low + u * (high - low)) ** (1.0 / exponent)
 
 
 def generate_distribution(
@@ -53,19 +50,22 @@ def generate_distribution(
     ns_mass_max: float = DEFAULT_NS_MASS_MAX,
     bh_spin_max: float = DEFAULT_BH_SPIN_MAX,
     ns_spin_max: float = DEFAULT_NS_SPIN_MAX,
-    mass_method: str = "bgp",
+    bh_powerlaw_alpha: float = DEFAULT_BH_POWERLAW_ALPHA,
+    mass_method: str = DEFAULT_MASS_METHOD,
     bgp_input: str = DEFAULT_BGP_INPUT,
     bgp_edges: np.ndarray | None = None,
     bgp_rates: np.ndarray | None = None,
 ) -> Table:
+    del ns_mass_mean, ns_mass_sigma
+
     if nsamples <= 0:
         raise ValueError("nsamples must be > 0")
     if bh_mass_min >= bh_mass_max:
         raise ValueError("bh_mass_min must be < bh_mass_max")
     if ns_mass_min >= ns_mass_max:
         raise ValueError("ns_mass_min must be < ns_mass_max")
-    if ns_mass_sigma <= 0:
-        raise ValueError("ns_mass_sigma must be > 0")
+    if not np.isfinite(bh_powerlaw_alpha):
+        raise ValueError("bh_powerlaw_alpha must be finite")
     if bh_spin_max < 0:
         raise ValueError("bh_spin_max must be >= 0")
     if ns_spin_max < 0:
@@ -89,15 +89,14 @@ def generate_distribution(
             bh_mass_max=bh_mass_max,
         )
     else:
-        mass1 = rng.uniform(bh_mass_min, bh_mass_max, nsamples)
-        mass2 = _sample_truncated_normal(
+        mass1 = _sample_truncated_power_law(
             rng,
             nsamples,
-            ns_mass_mean,
-            ns_mass_sigma,
-            ns_mass_min,
-            ns_mass_max,
+            bh_mass_min,
+            bh_mass_max,
+            bh_powerlaw_alpha,
         )
+        mass2 = rng.uniform(ns_mass_min, ns_mass_max, nsamples)
     spin1z = rng.uniform(-bh_spin_max, bh_spin_max, nsamples)
     spin2z = rng.uniform(-ns_spin_max, ns_spin_max, nsamples)
 
@@ -113,7 +112,7 @@ def generate_distribution(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate a simple astrophysical NSBH test distribution."
+        description="Generate an astrophysical NSBH test distribution."
     )
     parser.add_argument(
         "-o",
@@ -144,19 +143,25 @@ def parse_args() -> argparse.Namespace:
         "--bh-mass-max",
         type=float,
         default=DEFAULT_BH_MASS_MAX,
-        help="Maximum BH mass in Msun (default: 10.0)",
+        help="Maximum BH mass in Msun (default: 20.0)",
     )
     parser.add_argument(
         "--ns-mass-mean",
         type=float,
         default=1.35,
-        help="Mean NS mass in Msun (default: 1.35)",
+        help="Deprecated; ignored because NS mass is sampled uniformly.",
     )
     parser.add_argument(
         "--ns-mass-sigma",
         type=float,
         default=0.15,
-        help="NS mass Gaussian sigma in Msun (default: 0.15)",
+        help="Deprecated; ignored because NS mass is sampled uniformly.",
+    )
+    parser.add_argument(
+        "--bh-powerlaw-alpha",
+        type=float,
+        default=DEFAULT_BH_POWERLAW_ALPHA,
+        help="BH truncated power-law alpha for custom mode (default: 2.7)",
     )
     parser.add_argument(
         "--ns-spin-max",
@@ -173,8 +178,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--mass-method",
         choices=("bgp", "custom"),
-        default="bgp",
-        help="Mass sampling method: bgp rate grid or legacy custom distribution (default: bgp)",
+        default=DEFAULT_MASS_METHOD,
+        help="Mass sampling method: custom distribution or bgp rate grid (default: custom)",
     )
     parser.add_argument(
         "--bgp-input",
@@ -195,6 +200,7 @@ def main() -> None:
         ns_mass_sigma=args.ns_mass_sigma,
         ns_spin_max=args.ns_spin_max,
         bh_spin_max=args.bh_spin_max,
+        bh_powerlaw_alpha=args.bh_powerlaw_alpha,
         mass_method=args.mass_method,
         bgp_input=args.bgp_input,
     )
@@ -204,6 +210,8 @@ def main() -> None:
     print(f"  mass_method: {args.mass_method}")
     if args.mass_method == "bgp":
         print(f"  bgp_input: {args.bgp_input}")
+    else:
+        print(f"  bh_powerlaw_alpha: {args.bh_powerlaw_alpha}")
     for colname in table.colnames:
         values = np.asarray(table[colname])
         print(
