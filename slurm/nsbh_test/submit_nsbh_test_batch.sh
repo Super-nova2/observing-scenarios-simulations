@@ -5,10 +5,10 @@
 #
 # Usage:
 #   bash slurm/nsbh_test/submit_nsbh_test_batch.sh
-#   bash slurm/nsbh_test/submit_nsbh_test_batch.sh 100000 1000 8 42 200
+#   bash slurm/nsbh_test/submit_nsbh_test_batch.sh 150000 1000 8 42 200
 #
 # Args (positional):
-#   NSAMPLES        - Number of injections (default: 100000)
+#   NSAMPLES        - Number of injections (default: 150000)
 #   MAX_DIST        - Maximum distance in Mpc (default: 1000)
 #   NET_SNR_THR     - Network SNR threshold (default: 8)
 #   SEED            - Random seed (default: 42)
@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-NSAMPLES="${1:-100000}"
+NSAMPLES="${1:-150000}"
 MAX_DIST="${2:-1000}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"

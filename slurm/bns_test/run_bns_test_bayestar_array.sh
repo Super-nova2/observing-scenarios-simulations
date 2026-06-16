@@ -28,6 +28,8 @@ if [ -d "$HOME/lalsuite-waveform-data" ]; then
 fi
 
 EVENT_LIST="${EVENT_LIST:-}"
+EVENTS_SOURCE="${EVENTS_SOURCE:-}"
+SKYMAP_DIR="${SKYMAP_DIR:-}"
 EVENTS_PER_TASK="${EVENTS_PER_TASK:-50}"
 F_LOW="${F_LOW:-11}"
 
@@ -41,8 +43,19 @@ if [ ! -s "$EVENT_LIST" ]; then
   exit 2
 fi
 
+if [ ! -s "$EVENTS_SOURCE" ]; then
+  echo "EVENTS_SOURCE not found or empty: $EVENTS_SOURCE"
+  exit 2
+fi
+
+if [ -z "$SKYMAP_DIR" ]; then
+  echo "SKYMAP_DIR is required."
+  exit 2
+fi
+
 cd "$PROJECT_DIR"
 mkdir -p logs logs/arrays
+mkdir -p "$SKYMAP_DIR"
 
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"
 
@@ -65,10 +78,29 @@ for eventfile in "${events[@]}"; do
     continue
   fi
 
-  outdir="$(dirname "$eventfile")/../allsky"
-  mkdir -p "$outdir"
+  event_id=$(basename "$eventfile" .xml.gz)
+  fits_file="$SKYMAP_DIR/$event_id.fits"
+  if [ -s "$fits_file" ] && [ "$fits_file" -nt "$EVENTS_SOURCE" ]; then
+    echo "Skipping event $event_id: current sky map already exists."
+    continue
+  fi
 
-  uv run bayestar-localize-coincs "$eventfile" -o "$outdir" --f-low "$F_LOW" --cosmology
+  event_tmp_dir="$JOB_TMP_DIR/bayestar-$event_id"
+  rm -rf "$event_tmp_dir"
+  mkdir -p "$event_tmp_dir"
+  uv run bayestar-localize-coincs "$eventfile" -o "$event_tmp_dir" --f-low "$F_LOW" --cosmology
+
+  tmp_fits="$event_tmp_dir/$event_id.fits"
+  if [ ! -s "$tmp_fits" ]; then
+    echo "BAYESTAR did not create $tmp_fits."
+    exit 1
+  fi
+  mv "$tmp_fits" "$fits_file"
+
+  if [ ! "$fits_file" -nt "$EVENTS_SOURCE" ]; then
+    echo "Generated sky map is not newer than $EVENTS_SOURCE: $fits_file"
+    exit 1
+  fi
 done
 
 echo "Task $task_id complete."

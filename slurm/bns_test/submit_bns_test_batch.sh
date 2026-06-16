@@ -5,10 +5,10 @@
 #
 # Usage:
 #   bash slurm/bns_test/submit_bns_test_batch.sh
-#   bash slurm/bns_test/submit_bns_test_batch.sh 5000 500 8 42 200
+#   bash slurm/bns_test/submit_bns_test_batch.sh 10000 500 8 42 200
 #
 # Args (positional):
-#   NSAMPLES        - Number of injections (default: 5000)
+#   NSAMPLES        - Number of injections (default: 10000)
 #   MAX_DIST        - Maximum distance in Mpc (default: 500)
 #   NET_SNR_THR     - Network SNR threshold (default: 8)
 #   SEED            - Random seed (default: 42)
@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-NSAMPLES="${1:-5000}"
+NSAMPLES="${1:-10000}"
 MAX_DIST="${2:-500}"
 NET_SNR_THR="${3:-8}"
 SEED="${4:-42}"
